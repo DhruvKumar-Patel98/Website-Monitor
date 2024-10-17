@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+</head>
+<body>
+    <div class="signup-container">
+        <h2>Signup</h2>
+        <form method="POST" action="{% url 'signup' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" name="username" id="username" required>
+                {% if form.username.errors %}
+                    <div class="error">{{ form.username.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group password-group">
+                <div class="label-container">
+                    <label for="password1">Password</label>
+                    <span class="info-icon">i
+                        <span class="info-text">Password should be at least 8 characters long.</span>
+                    </span>
+                    <span id="togglePassword1" class="toggle-password">
+                        <img src="{% static 'icons/eye-open.svg' %}" alt="Show Password" id="password-icon1">
+                    </span>
+                </div>
+                <input type="password" name="password1" id="password1" required>
+                {% if form.password1.errors %}
+                    <div class="error">{{ form.password1.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group password-group">
+                <div class="label-container">
+                    <label for="password2">Confirm Password</label>
+                    <span id="togglePassword2" class="toggle-password">
+                        <img src="{% static 'icons/eye-open.svg' %}" alt="Show Password" id="password-icon2">
+                    </span>
+                </div>
+                <input type="password" name="password2" id="password2" required>
+                {% if form.password2.errors %}
+                    <div class="error">{{ form.password2.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <button type="submit" class="btn">Signup</button>
+
+            <a class="login-link" href="{% url 'login' %}">Already have an account? Login</a>
+
+            {% if form.non_field_errors %}
+                <div class="error">{{ form.non_field_errors }}</div>
+            {% endif %}
+        </form>
+    </div>
+
+    <script>
+        // Password 1 Toggle
+        const togglePassword1 = document.querySelector('#togglePassword1');
+        const passwordField1 = document.querySelector('#password1');
+        const passwordIcon1 = document.querySelector('#password-icon1');
+    
+        togglePassword1.addEventListener('click', function () {
+            const type = passwordField1.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField1.setAttribute('type', type);
+    
+            if (type === 'text') {
+                passwordIcon1.src = "{% static 'icons/eye-close.svg' %}";
+                passwordIcon1.alt = "Hide Password";
+            } else {
+                passwordIcon1.src = "{% static 'icons/eye-open.svg' %}";
+                passwordIcon1.alt = "Show Password";
+            }
+        });
+    
+        // Password 2 Toggle (Confirm Password)
+        const togglePassword2 = document.querySelector('#togglePassword2');
+        const passwordField2 = document.querySelector('#password2');
+        const passwordIcon2 = document.querySelector('#password-icon2');
+    
+        togglePassword2.addEventListener('click', function () {
+            const type = passwordField2.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField2.setAttribute('type', type);
+    
+            if (type === 'text') {
+                passwordIcon2.src = "{% static 'icons/eye-close.svg' %}";
+                passwordIcon2.alt = "Hide Password";
+            } else {
+                passwordIcon2.src = "{% static 'icons/eye-open.svg' %}";
+                passwordIcon2.alt = "Show Password";
+            }
+        });
+    </script>
+    
+
+</body>
+</html>
