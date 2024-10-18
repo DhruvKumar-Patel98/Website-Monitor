@@ -26,6 +26,6 @@ def settings(request):
 
 
 @login_required(login_url='/login')
-def logout_view(request):
+def account(request):
     logout(request)
     return redirect('/')

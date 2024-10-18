@@ -6,5 +6,5 @@ urlpatterns = [
     path('notification/', views.notification, name='notification'),
     path('page-status/', views.page_status, name='page_status'),
     path('settings/', views.settings, name='settings'),
-    path('logout/', views.logout_view, name='logout'),
+    path('account/', views.account, name='account'),
 ]
