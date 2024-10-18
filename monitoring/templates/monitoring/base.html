@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+<body>
+
+    <div class="container">
+
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Website Monitor</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li><a href="{% url 'page_status' %}">Page Status</a></li>
+                <li><a href="{% url 'notification' %}">Notifications</a></li>
+                <li><a href="{% url 'settings' %}">Settings</a></li>
+            </ul>
+
+            <div class="dropdown">
+                <button class="dropbtn">
+                    <i class="fas fa-user-circle"></i> Account
+                </button>
+                <div class="dropdown-content">
+                    <a href="{% url 'logout' %}">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            {% block content %}
+
+            {% endblock %}
+        </div>
+    </div>
+
+</body>
+</html>

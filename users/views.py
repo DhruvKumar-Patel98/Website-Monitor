@@ -13,7 +13,7 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('dashboard')  
+                return redirect('/dashboard')  
     return render(request, 'users/login.html', {'form': form})
 
 def signup(request):
@@ -22,7 +22,7 @@ def signup(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('dashboard')
+            return redirect('/dashboard')
     else:
         form = UserCreationForm()
     return render(request, 'users/signup.html', {'form': form})
