@@ -5,4 +5,52 @@
 {% block content %}
     <h1>Dashboard</h1>
     <p>Welcome to the Dashboard. Here you can monitor your website’s performance.</p>
-{% endblock %}
+
+    <h2>Monitoring Checks</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Name of Check</th>
+                <th>Check Interval</th>
+                <th>Check Type</th>
+                <th>URL</th>
+                <th>Contact Email</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for check in monitoring_checks %}
+            <tr>
+                <td>{{ check.name_of_check }}</td>
+                <td>{{ check.check_interval }}</td>
+                <td>{{ check.check_type }}</td>
+                <td>{{ check.url_to_check }}</td>
+                <td>{{ check.contact_detail }}</td>
+                <td>{{ check.location_to_check }}</td>
+            </tr>
+            {% endfor %}  <!-- Close the for loop -->
+        </tbody>
+    </table>
+
+    <h2>Monitoring Results</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>URL</th>
+                <th>Status</th>
+                <th>Response Time (ms)</th>
+                <th>Checked At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>{{ result.url }}</td>
+                <td>{{ result.status }}</td>
+                <td>{{ result.response_time }}</td>
+                <td>{{ result.checked_at }}</td>
+            </tr>
+            {% endfor %}  <!-- Close the for loop -->
+        </tbody>
+    </table>
+{% endblock %}  <!-- Close the content block -->

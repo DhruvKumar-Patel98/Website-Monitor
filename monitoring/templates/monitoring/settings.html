@@ -1,8 +1,77 @@
 {% extends 'monitoring/base.html' %}
 
+{% load static %}
+
 {% block title %}Settings{% endblock %}
 
 {% block content %}
-    <h1>Settings</h1>
-    <p>Check the status of your website pages here.</p>
+<link rel="stylesheet" type="text/css" href="{% static 'css/settings.css' %}"> <!-- Link to custom CSS -->
+
+<h1>Settings</h1>
+
+<div class="form-card">
+    <div class="card-header" id="toggleForm" style="cursor: pointer;">
+        <span>Add New Website Check</span>
+        <span class="arrow" id="arrow">&#x25B2;</span> <!-- Up arrow to indicate the form is open -->
+    </div>
+
+    <!-- Set display to block for the form to be open by default -->
+    <div class="form-content" id="formContainer" style="display: block;">
+        <form method="POST" action="{% url 'settings' %}">
+            {% csrf_token %}
+            <label for="id_name_of_check">Name of Check:</label>
+            <input type="text" name="name_of_check" id="id_name_of_check" required>
+
+            <label for="id_check_interval" class="check-interval-label">Check Interval (minutes):</label>
+            <div class="check-interval-container">
+                <input type="range" name="check_interval" id="id_check_interval" min="5" max="60" value="30" oninput="updateSlider(this)">
+                <output>30</output>&nbsp;minutes
+            </div>
+            <label for="id_check_type">Type of Check:</label>
+            <select name="check_type" id="id_check_type" required>
+                <option value="">Select...</option>
+                <option value="http">HTTP</option>
+                <option value="https">HTTPS</option>
+            </select>
+
+            <label for="id_url">URL:</label>
+            <input type="url" name="url" id="id_url" required>
+
+            <label for="id_contact_detail">Contact Email:</label>
+            <input type="email" name="contact_detail" id="id_contact_detail" required>
+
+            <label for="id_location_to_check">Location to Check:</label>
+            <input type="text" name="location_to_check" id="id_location_to_check" required>
+
+            <button type="submit">Add Check</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // JavaScript to toggle the visibility of the form
+    document.getElementById('toggleForm').addEventListener('click', function() {
+        var formContainer = document.getElementById('formContainer');
+        var arrow = document.getElementById('arrow');
+
+        if (formContainer.style.display === 'none' || formContainer.style.display === '') {
+            formContainer.style.display = 'block';
+            arrow.innerHTML = '&#x25B2;'; // Up arrow
+        } else {
+            formContainer.style.display = 'none';
+            arrow.innerHTML = '&#x25BC;'; // Down arrow
+        }
+    });
+
+    function updateSlider(slider) {
+    const value = slider.value;
+    const min = slider.min ? slider.min : 0;
+    const max = slider.max ? slider.max : 100;
+    const percentage = (value - min) / (max - min) * 100;
+
+    slider.style.background = `linear-gradient(to right, lightblue ${percentage}%, #ccc ${percentage}%)`;
+    slider.nextElementSibling.value = value; // Update the output value
+    }
+</script>
+
 {% endblock %}
