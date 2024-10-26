@@ -1,9 +1,10 @@
 from django.utils import timezone 
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.shortcuts import redirect
+from django.views import View
 from .form import MonitoringCheckForm
 from .models import MonitoringCheck, MonitoringResult
 from .tasks import scheduled_monitoring
@@ -18,6 +19,40 @@ def dashboard(request):
     scheduled_monitoring.delay()
     return render(request, 'monitoring/dashboard.html', {'monitoring_checks': monitoring_checks, 'results': results})
 
+def chart_data(request, check_id):
+    try:
+        results = MonitoringResult.objects.filter(monitoring_check__id=check_id).order_by('checked_at')
+        data = {
+            'labels': [result.checked_at.strftime('%Y-%m-%d %H:%M:%S') for result in results],
+            'data': [result.response_time for result in results]
+        }
+        return JsonResponse(data)
+    except Exception as e:
+        print(f"Error during fetching chart data: {e}")
+        return JsonResponse({'error': 'Error fetching chart data.'}, status=500)
+    
+class AllChartDataView(View):
+    def get(self, request):
+        data = []
+        monitoring_checks = MonitoringCheck.objects.all()
+        
+        for check in monitoring_checks:
+            # Collect the relevant data for each check
+            chart_data = {
+                'id': check.id,
+                'name_of_check': check.name_of_check,
+                'labels': [],  # Replace with your actual labels
+                'data': [],    # Replace with your actual data points
+            }
+            # Populate labels and data based on your model's monitoring results
+            results = check.monitoringresult_set.all()
+            for result in results:
+                chart_data['labels'].append(result.checked_at.isoformat())  # or your preferred format
+                chart_data['data'].append(result.response_time)
+            
+            data.append(chart_data)
+        
+        return JsonResponse(data, safe=False)
 
 @login_required(login_url='/login')
 def notification(request):

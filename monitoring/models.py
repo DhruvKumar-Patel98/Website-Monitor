@@ -26,6 +26,7 @@ class MonitoringCheck(models.Model):
 
 
 class MonitoringResult(models.Model):
+    monitoring_check = models.ForeignKey(MonitoringCheck, on_delete=models.CASCADE, related_name='monitoringresult_set')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     url = models.CharField(max_length=255) 
     status = models.CharField(max_length=50)

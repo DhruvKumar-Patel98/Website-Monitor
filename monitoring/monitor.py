@@ -4,14 +4,13 @@ import requests
 from django.contrib.auth.models import User
 
 def monitor_websites_for_user(user_id):
-    user = User.objects.get(id=user_id) 
-    checks = MonitoringCheck.objects.filter(user=user) 
-    now = timezone.now().replace(tzinfo=None) 
+    user = User.objects.get(id=user_id)
+    checks = MonitoringCheck.objects.filter(user=user)
+    now = timezone.now().replace(tzinfo=None)
 
     for check in checks:
         try:
             last_checked_naive = check.last_checked.replace(tzinfo=None) if check.last_checked else None
-
             time_difference = (now - last_checked_naive).total_seconds() / 60 if last_checked_naive else check.check_interval
 
             if time_difference >= check.check_interval:
@@ -20,7 +19,9 @@ def monitor_websites_for_user(user_id):
                 status = response.status_code
                 response_time = response.elapsed.total_seconds() * 1000  # in milliseconds
 
+                # Pass the monitoring_check instance to the MonitoringResult
                 MonitoringResult.objects.create(
+                    monitoring_check=check,  # <-- Add this line
                     user=check.user,
                     url=check.url,
                     status=status,
@@ -32,6 +33,7 @@ def monitor_websites_for_user(user_id):
                 check.save()
         except Exception as e:
             MonitoringResult.objects.create(
+                monitoring_check=check,  # <-- Add this line
                 user=check.user,
                 url=check.url,
                 status='Error',
