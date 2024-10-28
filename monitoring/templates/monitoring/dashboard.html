@@ -1,6 +1,6 @@
 {% extends 'monitoring/base.html' %}
 {% load static %}
-
+{% load tz %}
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
@@ -21,7 +21,19 @@
                     <div class="status-indicator {% if latest_result.status == '200' %}status-up{% else %}status-down{% endif %}">
                         ● {{ latest_result.status }}
                     </div>
-                    <p>Previous Check: {{ latest_result.checked_at|date:"Y-m-d H:i:s" }}</p>
+     
+                    <p>Previous Check:
+                        {% now "Y-m-d" as current_date %} <!-- Set the current date to a variable -->
+                    
+                        {% if latest_result.checked_at|date:"Y-m-d" == current_date %}
+                            Today {{ latest_result.checked_at|time:"H:i:s" }}
+                        {% elif latest_result.checked_at|date:"Y-m-d" == current_date|date:"Y-m-d"|add:"-1 day" %}
+                            Yesterday {{ latest_result.checked_at|time:"H:i:s" }}
+                        {% else %}
+                            {{ latest_result.checked_at|date:"Y-m-d" }} {{ latest_result.checked_at|time:"H:i:s" }}
+                        {% endif %}
+                    </p>
+                    
                 {% else %}
                     <div class="status-indicator status-unknown">
                         ● No checks yet
