@@ -11,6 +11,9 @@
 
 <h2>Monitoring Checks</h2>
 
+<!-- Hidden input to store the initial check ID -->
+<input type="hidden" id="initial-check-id" value="{{ monitoring_checks.first.id }}">
+
 <!-- Card Container -->
 <div class="card-container">
     {% for check in monitoring_checks %}
@@ -21,7 +24,6 @@
                     <div class="status-indicator {% if latest_result.status == '200' %}status-up{% else %}status-down{% endif %}">
                         ● {{ latest_result.status }}
                     </div>
-     
                     <p>Previous Check:
                         {% now "Y-m-d" as current_date %} <!-- Set the current date to a variable -->
                     
@@ -33,7 +35,6 @@
                             {{ latest_result.checked_at|date:"Y-m-d" }} {{ latest_result.checked_at|time:"H:i:s" }}
                         {% endif %}
                     </p>
-                    
                 {% else %}
                     <div class="status-indicator status-unknown">
                         ● No checks yet
@@ -50,109 +51,7 @@
     <h2>Response Time Chart</h2>
     <canvas id="responseChart" width="400" height="200"></canvas>
 </div>
-
-<h2>Monitoring Results</h2>
-<table>
-    <thead>
-        <tr>
-            <th>URL</th>
-            <th>Status</th>
-            <th>Response Time (ms)</th>
-            <th>Checked At</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for result in results %}
-        <tr>
-            <td>{{ result.url }}</td>
-            <td>{{ result.status }}</td>
-            <td>{{ result.response_time }}</td>
-            <td>{{ result.checked_at }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    let myChart; // Declare myChart variable globally
-
-    // Load initial chart data for the first monitoring check
-    document.addEventListener('DOMContentLoaded', () => {
-        const initialCheckId = '{{ monitoring_checks.first.id }}'; // Get the ID of the first check
-        openChart(initialCheckId);
-    });
-
-    function openChart(checkId) {
-        fetch(`/api/chart-data/${checkId}/`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                const labels = data.labels.slice(-10);
-                const datas = data.data.slice(-10);
-                // Check if data.labels and data.data are arrays
-                if (Array.isArray(labels) && Array.isArray(datas)) {
-                    
-                    const chartData = {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Response Time',
-                            data: datas,
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 1,
-                            fill: false // Set to true if you want the area below the line to be filled
-                        }]
-                    };
-
-                    createChart(chartData);
-                } else {
-                    console.error('Invalid data format:', data);
-                    alert('Error: Invalid data format received.');
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching chart data:', error);
-                alert('Error fetching chart data. Please try again later.');
-            });
-    }
-
-    function createChart(chartData) {
-        const ctx = document.getElementById('responseChart').getContext('2d');
-
-        // Destroy existing chart if it exists
-        if (myChart) {
-            myChart.destroy();
-        }
-
-        myChart = new Chart(ctx, {
-            type: 'line',
-            data: chartData,
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Response Time (ms)' // Y-axis title
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Previous Checked' // X-axis title
-                        },
-                        ticks: {
-                            display: false // Disable x-axis labels
-                        },
-                    }
-                }
-            }
-        });
-    }
-</script>
+<script src="{% static 'js/dashboard.js' %}"></script> <!-- Link to your JS file -->
 
 {% endblock %}

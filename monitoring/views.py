@@ -21,11 +21,16 @@ def dashboard(request):
 
 def chart_data(request, check_id):
     try:
+        # Fetch monitoring results for the given check ID and order them by date/time
         results = MonitoringResult.objects.filter(monitoring_check__id=check_id).order_by('checked_at')
+        
+        # Prepare data with labels, response times, and statuses
         data = {
             'labels': [result.checked_at.strftime('%Y-%m-%d %H:%M:%S') for result in results],
-            'data': [result.response_time for result in results]
+            'data': [result.response_time for result in results],
+            'statuses': [result.status for result in results]  # Add statuses array
         }
+        
         return JsonResponse(data)
     except Exception as e:
         print(f"Error during fetching chart data: {e}")
@@ -37,22 +42,26 @@ class AllChartDataView(View):
         monitoring_checks = MonitoringCheck.objects.all()
         
         for check in monitoring_checks:
-            # Collect the relevant data for each check
+            # Collect data for each check, including labels, response times, and statuses
             chart_data = {
                 'id': check.id,
                 'name_of_check': check.name_of_check,
-                'labels': [],  # Replace with your actual labels
-                'data': [],    # Replace with your actual data points
+                'labels': [],
+                'data': [],
+                'statuses': [],  # Add statuses array
             }
-            # Populate labels and data based on your model's monitoring results
-            results = check.monitoringresult_set.all()
+            
+            # Populate labels, data, and statuses based on monitoring results
+            results = check.monitoringresult_set.order_by('checked_at')  # Order results by date/time
             for result in results:
-                chart_data['labels'].append(result.checked_at.isoformat())  # or your preferred format
+                chart_data['labels'].append(result.checked_at.isoformat())  # Format checked_at as ISO string
                 chart_data['data'].append(result.response_time)
+                chart_data['statuses'].append(result.status)  # Add status to statuses array
             
             data.append(chart_data)
         
         return JsonResponse(data, safe=False)
+    
 
 @login_required(login_url='/login')
 def notification(request):
