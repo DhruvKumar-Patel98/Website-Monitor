@@ -1,65 +1,84 @@
 .card-container {
     display: flex;
-    overflow-x: auto; /* Allows horizontal scrolling */
-    white-space: nowrap; /* Prevents line breaks in cards */
-    padding: 10px; /* Add padding around the container */
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 10px;
 }
 
 .card {
-    background-color: #ffffff; /* Use a white background for contrast */
-    border: 1px solid #ddd; /* Light border */
-    border-radius: 8px; /* Rounded corners */
-    padding: 20px; /* Increased padding for a spacious feel */
-    margin: 10px; /* Spacing between cards */
-    cursor: pointer; /* Indicates it's clickable */
-    flex: 0 0 auto; /* Prevents the cards from shrinking */
-    width: 220px; /* Slightly increased width for better layout */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-    transition: transform 0.3s, box-shadow 0.3s; /* Smooth transitions */
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 10px;
+    cursor: pointer;
+    flex: 0 0 auto;
+    width: 220px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .card:hover {
-    transform: translateY(-5px); /* Lift effect on hover */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Deeper shadow on hover */
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
 }
 
 .status-indicator {
-    font-size: 1.5em; /* Slightly larger size for status indicator */
-    margin-bottom: 10px; /* Space between indicator and other text */
+    font-size: 1.5em;
+    margin-bottom: 10px;
 }
 
 .status-up {
-    color: #4caf50; /* Green color for status 200 */
+    color: #4caf50;
 }
 
 .status-down {
-    color: #f44336; /* Red color for non-200 status */
+    color: #f44336; 
 }
 
 .status-unknown {
-    color: #9e9e9e; /* Gray color when there are no checks */
+    color: #9e9e9e; 
 }
 
 .previous-check {
-    font-size: 0.9em; /* Smaller font size for previous check */
-    color: #757575; /* Dark gray color */
+    font-size: 0.9em;
+    color: #757575; 
 }
 
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    display: none;
+    position: fixed;
+    z-index: 1;
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgba(0, 0, 0, 0.6); /* Darker background with opacity */
+    width: 100%; 
+    height: 100%; 
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
 }
 
 .close {
-    color: white; /* Close button color */
-    float: right; /* Align to the right */
-    font-size: 28px; /* Size of the close button */
-    font-weight: bold; /* Bold close button */
+    color: white;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.icon {
+    width: 10px;
+    height: 10px;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: filter 0.2s ease;
+}
+
+.add-icon {
+    width: 24px;
+    height: 24px;
+    margin-left: 10px;
+    border-radius: 50%;
+}
+
+.add-button img:hover {
+    filter: brightness(0.8);
 }

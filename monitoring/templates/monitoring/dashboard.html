@@ -4,12 +4,18 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}"> <!-- Link to custom CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
 
 <h1>Dashboard</h1>
 <p>Welcome to the Dashboard. Here you can monitor your website’s performance.</p>
 
-<h2>Monitoring Checks</h2>
+<h2 style="display: flex; align-items: center; gap: 10px;">
+    Monitoring Checks
+    <a href="{% url 'settings' %}" class="add-button" title="Go to Settings" style="display: inline-flex; align-items: center;">
+        <img src="{% static 'icons/add.svg' %}" alt="Add" style="width: 22px; height: 22px; cursor: pointer;">
+    </a>
+</h2>
+
 
 <!-- Hidden input to store the initial check ID -->
 <input type="hidden" id="initial-check-id" value="{{ monitoring_checks.first.id }}">
@@ -18,14 +24,19 @@
 <div class="card-container">
     {% for check in monitoring_checks %}
         <div class="card" onclick="openChart('{{ check.id }}')">
-            <h3>{{ check.name_of_check }}</h3>
+            <h3 style="display: flex; align-items: center; gap: 15px;">
+                {{ check.name_of_check }}
+                <a href="#" title="Edit Check"  class="add-button"  style="display: inline-flex; align-items: center;">
+                    <img src="{% static 'icons/edit.svg' %}" alt="Edit" style="width: 16px; height: 16px; margin-bottom: 5px; cursor: pointer;">
+                </a>
+            </h3>
             {% with latest_result=check.monitoringresult_set.last %}
                 {% if latest_result %}
                     <div class="status-indicator {% if latest_result.status == '200' %}status-up{% else %}status-down{% endif %}">
                         ● {{ latest_result.status }}
                     </div>
                     <p>Previous Check:
-                        {% now "Y-m-d" as current_date %} <!-- Set the current date to a variable -->
+                        {% now "Y-m-d" as current_date %} 
                     
                         {% if latest_result.checked_at|date:"Y-m-d" == current_date %}
                             Today {{ latest_result.checked_at|time:"H:i:s" }}
