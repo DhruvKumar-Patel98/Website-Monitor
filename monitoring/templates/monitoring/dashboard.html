@@ -26,10 +26,10 @@
         <div class="card" onclick="openChart('{{ check.id }}')">
             <h3 style="display: flex; align-items: center; gap: 15px;">
                 {{ check.name_of_check }}
-                <a href="#" title="Edit Check"  class="add-button"  style="display: inline-flex; align-items: center;">
+                <a href="javascript:void(0);" title="Edit Check" onclick="openEditForm('{{ check.id }}', event)" class="add-button" style="display: inline-flex; align-items: center;">
                     <img src="{% static 'icons/edit.svg' %}" alt="Edit" style="width: 16px; height: 16px; margin-bottom: 5px; cursor: pointer;">
                 </a>
-            </h3>
+            </h3>   
             {% with latest_result=check.monitoringresult_set.last %}
                 {% if latest_result %}
                     <div class="status-indicator {% if latest_result.status == '200' %}status-up{% else %}status-down{% endif %}">
@@ -61,6 +61,40 @@
 <div id="chartContainer">
     <h2>Response Time Chart</h2>
     <canvas id="responseChart" width="400" height="200"></canvas>
+</div>
+<!-- Popup Form Container -->
+<div id="editFormPopup" class="popup-form-container" style="display: none;">
+    <div class="popup-form-content">
+        <span class="close-btn" onclick="closePopup()">&times;</span> <!-- Close Button -->
+        <h2>Edit Check</h2>
+        <form id="editForm" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="check_id" id="check_id">
+            
+            <label for="id_name_of_check">Name of Check:</label>
+            <input type="text" name="name_of_check" id="id_name_of_check" required>
+            
+            <label for="id_check_interval">Check Interval (minutes):</label>
+            <input type="number" name="check_interval" id="id_check_interval" required>
+            
+            <label for="id_check_type">Type of Check:</label>
+            <select name="check_type" id="id_check_type" required>
+                <option value="http">HTTP</option>
+                <option value="https">HTTPS</option>
+            </select>
+
+            <label for="id_url">URL:</label>
+            <input type="url" name="url" id="id_url" required>
+
+            <label for="id_contact_detail">Contact Email:</label>
+            <input type="email" name="contact_detail" id="id_contact_detail" required>
+
+            <label for="id_location_to_check">Location to Check:</label>
+            <input type="text" name="location_to_check" id="id_location_to_check" required>
+
+            <button type="button" onclick="saveEditForm()">Save Changes</button>
+        </form>
+    </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'js/dashboard.js' %}"></script> <!-- Link to your JS file -->
