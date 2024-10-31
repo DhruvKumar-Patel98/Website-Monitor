@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import AllChartDataView
+from .views import AllChartDataView, get_or_update_check_data
 
 urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
@@ -9,5 +9,7 @@ urlpatterns = [
     path('settings/', views.settings, name='settings'),
     path('account/', views.account, name='account'),
     path('api/chart-data/<int:check_id>/', views.chart_data, name='chart_data'),
-    path('api/all-chart-data/', AllChartDataView.as_view(), name='all_chart_data'),  # Ensure this path exists
+    path('api/all-chart-data/', AllChartDataView.as_view(), name='all_chart_data'),
+    path('edit_check/', views.edit_check, name='edit_check'),
+    path('api/check/<int:id>/', get_or_update_check_data, name='get_check_data'),
 ]

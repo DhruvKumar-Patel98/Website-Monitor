@@ -16,7 +16,6 @@
     </a>
 </h2>
 
-
 <!-- Hidden input to store the initial check ID -->
 <input type="hidden" id="initial-check-id" value="{{ monitoring_checks.first.id }}">
 
@@ -89,8 +88,22 @@
             <label for="id_contact_detail">Contact Email:</label>
             <input type="email" name="contact_detail" id="id_contact_detail" required>
 
-            <label for="id_location_to_check">Location to Check:</label>
-            <input type="text" name="location_to_check" id="id_location_to_check" required>
+            <label>Location to Check:</label>
+            <input type="text" id="searchLocation" placeholder="Search countries..." onkeyup="filterCountries()" style="margin-bottom: 10px; padding: 5px; width: 100%;">
+        
+            <div class="form-control" style="max-height: 150px; overflow-y: auto;">
+                {% for value, display in form.location_to_check.field.choices %}
+                    <div class="country-option">
+                        <input type="checkbox" name="{{ form.location_to_check.name }}" value="{{ value }}"
+                            {% if value in form.location_to_check.value %}checked{% endif %} id="location-{{ value }}">
+                        <label for="location-{{ value }}">{{ display }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if form.location_to_check.errors %}
+                <div class="text-danger">{{ form.location_to_check.errors }}</div>
+            {% endif %}
+            
 
             <button type="button" onclick="saveEditForm()">Save Changes</button>
         </form>

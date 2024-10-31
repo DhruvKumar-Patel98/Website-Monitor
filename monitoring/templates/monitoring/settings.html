@@ -15,62 +15,86 @@
         <span class="arrow" id="arrow">&#x25B2;</span> <!-- Up arrow to indicate the form is open -->
     </div>
 
-    <!-- Set display to block for the form to be open by default -->
     <div class="form-content" id="formContainer" style="display: block;">
         <form method="POST" action="{% url 'settings' %}">
             {% csrf_token %}
             <label for="id_name_of_check">Name of Check:</label>
             <input type="text" name="name_of_check" id="id_name_of_check" required>
-
+        
             <label for="id_check_interval" class="check-interval-label">Check Interval (minutes):</label>
             <div class="check-interval-container">
                 <input type="range" name="check_interval" id="id_check_interval" min="5" max="60" value="30" oninput="updateSlider(this)">
                 <output>30</output>&nbsp;minutes
             </div>
+        
             <label for="id_check_type">Type of Check:</label>
             <select name="check_type" id="id_check_type" required>
                 <option value="">Select...</option>
                 <option value="http">HTTP</option>
                 <option value="https">HTTPS</option>
             </select>
-
+        
             <label for="id_url">URL:</label>
             <input type="url" name="url" id="id_url" required>
-
+        
             <label for="id_contact_detail">Contact Email:</label>
             <input type="email" name="contact_detail" id="id_contact_detail" required>
-
-            <label for="id_location_to_check">Location to Check:</label>
-            <input type="text" name="location_to_check" id="id_location_to_check" required>
-
+        
+            <label>Location to Check:</label>
+            <input type="text" id="searchLocation" placeholder="Search countries..." onkeyup="filterCountries()" style="margin-bottom: 10px; padding: 5px; width: 100%;">
+        
+            <div class="form-control" style="max-height: 150px; overflow-y: auto;">
+                {% for value, display in form.location_to_check.field.choices %}
+                    <div class="country-option">
+                        <input type="checkbox" name="{{ form.location_to_check.name }}" value="{{ value }}"
+                            {% if value in form.location_to_check.value %}checked{% endif %} id="location-{{ value }}">
+                        <label for="location-{{ value }}">{{ display }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if form.location_to_check.errors %}
+                <div class="text-danger">{{ form.location_to_check.errors }}</div>
+            {% endif %}
+            
+        
             <button type="submit">Add Check</button>
-        </form>
+        </form>  
     </div>
 </div>
 
 <script>
-    // JavaScript to toggle the visibility of the form
+    function filterCountries() {
+        const input = document.getElementById('searchLocation');
+        const filter = input.value.toLowerCase();
+        const options = document.querySelectorAll('.country-option');
+        
+        options.forEach(option => {
+            const label = option.querySelector('label').innerText.toLowerCase();
+            option.style.display = label.includes(filter) ? '' : 'none';
+        });
+    }
+
     document.getElementById('toggleForm').addEventListener('click', function() {
         var formContainer = document.getElementById('formContainer');
         var arrow = document.getElementById('arrow');
 
         if (formContainer.style.display === 'none' || formContainer.style.display === '') {
             formContainer.style.display = 'block';
-            arrow.innerHTML = '&#x25B2;'; // Up arrow
+            arrow.innerHTML = '&#x25B2;';
         } else {
             formContainer.style.display = 'none';
-            arrow.innerHTML = '&#x25BC;'; // Down arrow
+            arrow.innerHTML = '&#x25BC;'; 
         }
     });
 
     function updateSlider(slider) {
-    const value = slider.value;
-    const min = slider.min ? slider.min : 0;
-    const max = slider.max ? slider.max : 100;
-    const percentage = (value - min) / (max - min) * 100;
+        const value = slider.value;
+        const min = slider.min ? slider.min : 0;
+        const max = slider.max ? slider.max : 100;
+        const percentage = (value - min) / (max - min) * 100;
 
-    slider.style.background = `linear-gradient(to right, lightblue ${percentage}%, #ccc ${percentage}%)`;
-    slider.nextElementSibling.value = value; // Update the output value
+        slider.style.background = `linear-gradient(to right, lightblue ${percentage}%, #ccc ${percentage}%)`;
+        slider.nextElementSibling.value = value; // Update the output value
     }
 </script>
 

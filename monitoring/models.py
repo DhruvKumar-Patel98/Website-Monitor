@@ -11,8 +11,8 @@ class MonitoringCheck(models.Model):
     check_type = models.CharField(max_length=10, choices=[('http', 'HTTP'), ('https', 'HTTPS')])
     url = models.URLField()
     contact_detail = models.EmailField()
-    location_to_check = models.CharField(max_length=255)
-    last_checked = models.DateTimeField(default=timezone.now)  # Set default to the current time
+    location_to_check = models.TextField(blank=True, null=True) 
+    last_checked = models.DateTimeField(default=timezone.now) 
 
     def __str__(self):
         return self.name_of_check
