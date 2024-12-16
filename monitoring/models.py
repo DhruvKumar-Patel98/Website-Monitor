@@ -31,7 +31,9 @@ class MonitoringResult(models.Model):
     url = models.CharField(max_length=255) 
     status = models.CharField(max_length=50)
     response_time = models.FloatField() 
-    checked_at = models.DateTimeField(auto_now_add=True) 
+    checked_at = models.DateTimeField(auto_now_add=True)
+    location_checked = models.CharField(max_length=100, null=True, blank=True) 
 
     def __str__(self):
-        return f"{self.url} - {self.status} at {self.checked_at}"
+        return f"{self.url} - {self.status} at {self.checked_at} from {self.location_checked}"
+

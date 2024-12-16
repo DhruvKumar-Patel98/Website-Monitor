@@ -27,17 +27,23 @@ def dashboard(request):
 
 def chart_data(request, check_id):
     try:
-        # Fetch monitoring results for the given check ID and order them by date/time
-        results = MonitoringResult.objects.filter(monitoring_check__id=check_id).order_by('checked_at')
+        # Fetch monitoring results grouped by location
+        results = MonitoringResult.objects.filter(monitoring_check__id=check_id).order_by('location_checked', 'checked_at')
         
-        # Prepare data with labels, response times, and statuses
-        data = {
-            'labels': [result.checked_at.strftime('%Y-%m-%d %H:%M:%S') for result in results],
-            'data': [result.response_time for result in results],
-            'statuses': [result.status for result in results]  # Add statuses array
-        }
-        
-        return JsonResponse(data)
+        # Prepare data with labels, response times, and locations
+        grouped_data = {}
+        for result in results:
+            location = result.location_checked  # Assuming `location` is a field in the MonitoringResult model
+            if location not in grouped_data:
+                grouped_data[location] = {
+                    'labels': [],
+                    'data': [],
+                    'statuses': [],
+                }
+            grouped_data[location]['labels'].append(result.checked_at.strftime('%Y-%m-%d %H:%M:%S'))
+            grouped_data[location]['data'].append(result.response_time)
+            grouped_data[location]['statuses'].append(result.status)
+        return JsonResponse(grouped_data)
     except Exception as e:
         print(f"Error during fetching chart data: {e}")
         return JsonResponse({'error': 'Error fetching chart data.'}, status=500)

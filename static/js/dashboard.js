@@ -11,25 +11,65 @@ function openChart(checkId) {
             return response.json();
         })
         .then(data => {
-            const labels = data.labels.slice(-10);
-            const datas = data.data.slice(-10);
-            const statusCodes = data.statuses ? data.statuses.slice(-10) : [];
+            console.log("Response Data ->", data);  // Log the full data
 
-            if (Array.isArray(labels) && Array.isArray(datas) && Array.isArray(statusCodes)) {
-                const chartData = {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Response Time',
-                        data: datas,
-                        borderColor: 'rgba(75, 192, 192, 1)',
+            // Prepare the datasets dynamically based on the locations (keys in the response)
+            const datasets = [];
+            let labels = [];
+            let isFirstLocation = true;  // Flag to ensure we only use the first location's labels
+
+            // Define an array of colors (can be expanded if needed)
+            const colors = [
+                'rgba(75, 192, 192, 1)', // Teal
+                'rgba(153, 102, 255, 1)', // Purple
+                'rgba(255, 159, 64, 1)', // Orange
+                'rgba(255, 205, 86, 1)', // Yellow
+                'rgba(54, 162, 235, 1)', // Blue
+                'rgba(201, 203, 207, 1)'  // Grey
+            ];
+
+            let colorIndex = 0; // To cycle through the colors
+
+            // Loop through each location in the response data (e.g., 'ca', 'us', etc.)
+            for (const location in data) {
+                const locationData = data[location];  // Access each location's data
+                const locationLabels = locationData.labels.slice(-10);
+                const locationDataPoints = locationData.data.slice(-10);
+                const statusCodes = locationData.statuses ? locationData.statuses.slice(-10) : [];
+
+                // Set labels for the first location (assume all locations have the same labels)
+                if (isFirstLocation) {
+                    labels = locationLabels;
+                    isFirstLocation = false;
+                }
+
+                // Only proceed if the data format is valid
+                if (Array.isArray(locationLabels) && Array.isArray(locationDataPoints) && Array.isArray(statusCodes)) {
+                    datasets.push({
+                        label: location,  // Use the location as the dataset label (e.g., 'ca', 'us')
+                        data: locationDataPoints,
+                        borderColor: colors[colorIndex % colors.length],  // Assign a color from the colors array
                         pointBackgroundColor: statusCodes.map(status => status === '200' ? 'green' : 'red'),
                         borderWidth: 1,
                         fill: false
-                    }]
+                    });
+
+                    // Cycle through the colors for the next location
+                    colorIndex++;
+                } else {
+                    alert('Error: Invalid data format received for ' + location);
+                }
+            }
+
+            // Create chart if we have at least one valid dataset
+            if (datasets.length > 0) {
+                const chartData = {
+                    labels: labels,  // Same labels for all datasets
+                    datasets: datasets  // Dynamic datasets with different line colors
                 };
                 createChart(chartData);
             } else {
-                alert('Error: Invalid data format received.');
+                alert('Error: No valid data for chart creation.');
             }
         })
         .catch(error => alert('Error fetching chart data. Please try again later.'));

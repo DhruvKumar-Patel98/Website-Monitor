@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import MonitoringCheck, MonitoringResult
 
-# Register your models here.
+admin.site.register(MonitoringCheck) 
+admin.site.register(MonitoringResult)  
+

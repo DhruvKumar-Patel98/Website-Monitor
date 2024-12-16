@@ -92,14 +92,20 @@
             <input type="text" id="searchLocation" placeholder="Search countries..." onkeyup="filterCountries()" style="margin-bottom: 10px; padding: 5px; width: 100%;">
         
             <div class="form-control" style="max-height: 150px; overflow-y: auto;">
-                {% for value, display in form.location_to_check.field.choices %}
-                    <div class="country-option">
-                        <input type="checkbox" name="{{ form.location_to_check.name }}" value="{{ value }}"
-                            {% if value in form.location_to_check.value %}checked{% endif %} id="location-{{ value }}">
-                        <label for="location-{{ value }}">{{ display }}</label>
-                    </div>
-                {% endfor %}
+                <div class="country-option">
+                    <input type="checkbox" name="location_to_check" value="ca" id="location-ca">
+                    <label for="location-ca">Canada</label>
+                </div>
+                <div class="country-option">
+                    <input type="checkbox" name="location_to_check" value="us" id="location-us">
+                    <label for="location-us">United States</label>
+                </div>
+                <div class="country-option">
+                    <input type="checkbox" name="location_to_check" value="uk" id="location-uk">
+                    <label for="location-uk">United Kingdom</label>
+                </div>
             </div>
+
             {% if form.location_to_check.errors %}
                 <div class="text-danger">{{ form.location_to_check.errors }}</div>
             {% endif %}
