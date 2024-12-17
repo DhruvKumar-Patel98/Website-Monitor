@@ -12,6 +12,7 @@ from .tasks import scheduled_monitoring
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from .form import COUNTRIES
+from django.http import JsonResponse, HttpResponseNotAllowed
 
 
 def home_view(request):
@@ -89,12 +90,20 @@ def settings(request):
         form = MonitoringCheckForm(request.POST)
         if form.is_valid():
             monitoring_check = form.save(commit=False)
-            monitoring_check.user = request.user  # Link the monitoring check to the logged-in user
-            monitoring_check.last_checked = timezone.now()  # Set the current time when creating a new check
-            monitoring_check.save()  # Save the form data to the database
-            return redirect('dashboard')  # Redirect to the dashboard after saving
+            monitoring_check.user = request.user  
+            monitoring_check.last_checked = timezone.now() 
+            custom_port = request.POST.get('port')
+            if custom_port:
+                monitoring_check.port = int(custom_port)
+            else:
+                if monitoring_check.check_type == 'http':
+                    monitoring_check.port = 80
+                elif monitoring_check.check_type == 'https':
+                    monitoring_check.port = 443
+            monitoring_check.save()
+            return redirect('dashboard')
         else:
-            print("Invalid", form.errors)  # For debugging
+            print("Invalid", form.errors)
     else:
         form = MonitoringCheckForm()
     
@@ -107,7 +116,7 @@ def account(request):
     return redirect('/')
 
 @csrf_exempt
-@require_http_methods(["GET", "PUT"])
+@require_http_methods(["GET", "PUT", "DELETE"])
 def get_or_update_check_data(request, id):
     try:
         check = MonitoringCheck.objects.get(id=id)
@@ -118,6 +127,7 @@ def get_or_update_check_data(request, id):
                 'check_interval': check.check_interval,
                 'check_type': check.check_type,
                 'url': check.url,
+                'port': check.port,
                 'contact_detail': check.contact_detail,
                 'location_to_check': location_to_check,
             }
@@ -129,10 +139,19 @@ def get_or_update_check_data(request, id):
             check.check_interval = data.get('check_interval', check.check_interval)
             check.check_type = data.get('check_type', check.check_type)
             check.url = data.get('url', check.url)
+            check.port = data.get('port', check.port)
             check.contact_detail = data.get('contact_detail', check.contact_detail)
             check.location_to_check = ','.join(data.get('location_to_check', []))
             check.save()
-            return JsonResponse({"message": "Check updated successfully."})
+            return JsonResponse({"message": "Check updated successfully.", "status": "success"})
+        
+        elif request.method == "DELETE":
+            check = get_object_or_404(MonitoringCheck, id=id)
+            title = check.name_of_check
+            check.delete()
+            return JsonResponse({"message": f"{title} deleted successfully.", "status": "success"})
+        else:
+            return HttpResponseNotAllowed(["DELETE"])
         
     except MonitoringCheck.DoesNotExist:
         return JsonResponse({'error': 'Check not found'}, status=404)
@@ -153,6 +172,14 @@ def edit_check(request):
         check.url = request.POST.get('url')
         check.contact_detail = request.POST.get('contact_detail')
         check.location_to_check = ','.join(request.POST.getlist('location_to_check'))  # Handle multiple countries
+        custom_port = request.POST.get('port')
+        if custom_port:
+            check.port = int(custom_port)
+        else:
+            if check.check_type == 'http':
+                check.port = 80
+            elif check.check_type == 'https':
+                check.port = 443
         check.save()
         return redirect('dashboard')
     
@@ -170,6 +197,14 @@ def update_check(request, check_id):
         check.contact_detail = data.get("contact_detail", check.contact_detail)
         location_to_check = data.get("location_to_check", [])
         check.location_to_check = ','.join(location_to_check)
+        custom_port = data.get("port")
+        if custom_port:
+            check.port = int(custom_port)
+        else:
+            if check.check_type == 'http':
+                check.port = 80
+            elif check.check_type == 'https':
+                check.port = 443
         
         check.save()
         return JsonResponse({"message": "Check updated successfully."})

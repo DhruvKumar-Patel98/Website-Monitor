@@ -133,3 +133,129 @@ input[type="text"]:focus {
     border-color: #66afe9;
     outline: none;
 }
+/* Default Port Section (Inline Layout) */
+.default-port-inline {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Adjusts spacing for better balance */
+    margin-bottom: 1rem; /* Adds space below */
+    flex-wrap: wrap; /* Allows items to wrap on smaller screens */
+    width: 100%;
+}
+
+/* Default Port Label */
+.default-port-label {
+    font-size: 1rem; /* Use rem for scalable font size */
+    white-space: nowrap;
+}
+
+/* Toggle switch container */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 3rem; /* 50px */
+    height: 1.25rem; /* 20px */
+}
+
+/* Toggle slider styles */
+.switch input {
+    display: none;
+}
+.slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 1.25rem; /* Rounded corners */
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 1rem; /* 16px */
+    width: 1rem; /* 16px */
+    left: 0.10rem; /* 4px */
+    bottom: 0.20rem; /* 4px */
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+/* When the toggle is checked */
+input:checked + .slider {
+    background-color: #4CAF50;
+}
+input:checked + .slider:before {
+    transform: translateX(1.75rem); /* 28px */
+}
+
+/* Info icon styling */
+.info-icon {
+    font-size: 1rem; /* Use rem for scalable font size */
+    color: #555;
+    cursor: pointer;
+}
+
+/* Hidden input container */
+.hidden-inline {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute; /* Remove space occupied */
+    height: 0;
+    width: 0;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+/* Visible input container */
+.visible-inline {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+/* Input section when visible */
+#custom_port_container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+/* Port label */
+.port-label {
+    font-size: 1rem;
+    width: auto;
+    white-space: nowrap;
+}
+
+/* Input field */
+#id_port {
+    flex-grow: 1;
+    padding: 0.5rem; /* Use rem for padding */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+/* Ensure responsive design for mobile screens */
+@media (max-width: 600px) {
+    .default-port-inline {
+        flex-direction: column; /* Stack the elements vertically */
+        gap: 10px; /* Reduce gap */
+    }
+
+    .port-label {
+        width: 100%; /* Allow label to take full width on small screens */
+    }
+
+    #custom_port_container {
+        width: 100%; /* Ensure the input takes full width */
+    }
+
+    #id_port {
+        width: 100%; /* Full width input on smaller screens */
+    }
+}

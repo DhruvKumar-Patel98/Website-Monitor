@@ -2,7 +2,9 @@ from django import forms
 from .models import MonitoringCheck 
 import pycountry
 
-COUNTRIES = [(country.alpha_2, country.name) for country in pycountry.countries]
+COUNTRIES = [('us', 'United States'),
+        ('ca', 'Canada'),
+        ('uk', 'United Kingdom'),]
 
 class MonitoringCheckForm(forms.ModelForm):
     location_to_check = forms.MultipleChoiceField(

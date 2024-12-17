@@ -36,6 +36,19 @@
         
             <label for="id_url">URL:</label>
             <input type="url" name="url" id="id_url" required>
+            <!-- Default Port Toggle Section -->
+            <div class="default-port-inline">
+                <label for="default_port_toggle" class="default-port-label">Default Port:</label>
+                <label class="switch">
+                    <input type="checkbox" id="default_port_toggle" checked>
+                    <span class="slider"></span>
+                </label>
+                <span class="info-icon" title="Default Ports: HTTP - 80, HTTPS - 443">ℹ️</span>
+                <div id="custom_port_container" class="hidden-inline">
+                    <label for="id_port" class="port-label">Your Port:</label>
+                    <input type="number" name="port" id="id_port" min="1" max="65535" placeholder="Enter custom port">
+                </div>
+            </div>
         
             <label for="id_contact_detail">Contact Email:</label>
             <input type="email" name="contact_detail" id="id_contact_detail" required>
@@ -67,41 +80,6 @@
         </form>  
     </div>
 </div>
-
-<script>
-    function filterCountries() {
-        const input = document.getElementById('searchLocation');
-        const filter = input.value.toLowerCase();
-        const options = document.querySelectorAll('.country-option');
-        
-        options.forEach(option => {
-            const label = option.querySelector('label').innerText.toLowerCase();
-            option.style.display = label.includes(filter) ? '' : 'none';
-        });
-    }
-
-    document.getElementById('toggleForm').addEventListener('click', function() {
-        var formContainer = document.getElementById('formContainer');
-        var arrow = document.getElementById('arrow');
-
-        if (formContainer.style.display === 'none' || formContainer.style.display === '') {
-            formContainer.style.display = 'block';
-            arrow.innerHTML = '&#x25B2;';
-        } else {
-            formContainer.style.display = 'none';
-            arrow.innerHTML = '&#x25BC;'; 
-        }
-    });
-
-    function updateSlider(slider) {
-        const value = slider.value;
-        const min = slider.min ? slider.min : 0;
-        const max = slider.max ? slider.max : 100;
-        const percentage = (value - min) / (max - min) * 100;
-
-        slider.style.background = `linear-gradient(to right, lightblue ${percentage}%, #ccc ${percentage}%)`;
-        slider.nextElementSibling.value = value; // Update the output value
-    }
-</script>
+<script src="{% static 'js/settings.js' %}"></script>
 
 {% endblock %}

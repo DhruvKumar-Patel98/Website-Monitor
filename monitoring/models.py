@@ -10,6 +10,7 @@ class MonitoringCheck(models.Model):
     check_interval = models.IntegerField(default=30)  # Interval in minutes
     check_type = models.CharField(max_length=10, choices=[('http', 'HTTP'), ('https', 'HTTPS')])
     url = models.URLField()
+    port = models.IntegerField(default=443)
     contact_detail = models.EmailField()
     location_to_check = models.TextField(blank=True, null=True) 
     last_checked = models.DateTimeField(default=timezone.now) 

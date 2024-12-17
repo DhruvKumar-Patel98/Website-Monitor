@@ -28,6 +28,9 @@
                 <a href="javascript:void(0);" title="Edit Check" onclick="openEditForm('{{ check.id }}', event)" class="add-button" style="display: inline-flex; align-items: center;">
                     <img src="{% static 'icons/edit.svg' %}" alt="Edit" style="width: 16px; height: 16px; margin-bottom: 5px; cursor: pointer;">
                 </a>
+                <a href="javascript:void(0);" title="Delete Check" onclick="deleteCheck('{{ check.id }}', '{{ check.name_of_check }}', event)" class="delete-button" style="display: inline-flex; align-items: center;">
+                    <img src="{% static 'icons/delete.svg' %}" alt="Delete" style="width: 16px; height: 25px; margin-bottom: 5px; cursor: pointer;">
+                </a>                
             </h3>   
             {% with latest_result=check.monitoringresult_set.last %}
                 {% if latest_result %}
@@ -61,10 +64,31 @@
     <h2>Response Time Chart</h2>
     <canvas id="responseChart" width="400" height="200"></canvas>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <p>Are you sure you want to delete the check: <strong></strong>?</p>
+        <div class="modal-actions">
+            <button id="confirmDeleteButton" class="confirm-button">Yes</button>
+            <button onclick="closeModal()" class="cancel-button">No</button>
+        </div>
+    </div>
+</div>
+
+<!-- Success popup structure -->
+<div id="overlay" class="overlay"></div>
+<div id="successPopup" class="success-popup" style="display: none;">
+    <div class="popup-content">
+        <p id="successMessage"></p>
+        <p>Closing in <span id="countdown">3</span> seconds</p>
+    </div>
+</div>
+
 <!-- Popup Form Container -->
 <div id="editFormPopup" class="popup-form-container" style="display: none;">
     <div class="popup-form-content">
-        <span class="close-btn" onclick="closePopup()">&times;</span> <!-- Close Button -->
+        <span class="close-btn" onclick="closePopup()">&times;</span>
         <h2>Edit Check</h2>
         <form id="editForm" method="POST">
             {% csrf_token %}
@@ -84,6 +108,9 @@
 
             <label for="id_url">URL:</label>
             <input type="url" name="url" id="id_url" required>
+
+            <label for="id_port">Port:</label>
+            <input type="number" id="id_port" name="port" placeholder="Leave blank for default">
 
             <label for="id_contact_detail">Contact Email:</label>
             <input type="email" name="contact_detail" id="id_contact_detail" required>
@@ -116,6 +143,6 @@
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{% static 'js/dashboard.js' %}"></script> <!-- Link to your JS file -->
+<script src="{% static 'js/dashboard.js' %}"></script>
 
 {% endblock %}

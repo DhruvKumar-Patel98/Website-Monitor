@@ -11,7 +11,6 @@ function openChart(checkId) {
             return response.json();
         })
         .then(data => {
-            console.log("Response Data ->", data);  // Log the full data
 
             // Prepare the datasets dynamically based on the locations (keys in the response)
             const datasets = [];
@@ -121,6 +120,7 @@ function openEditPopup(checkId) {
             document.getElementById("id_check_interval").value = data.check_interval;
             document.getElementById("id_check_type").value = data.check_type;
             document.getElementById("id_url").value = data.url;
+            document.getElementById("id_port").value = data.port;
             document.getElementById("id_contact_detail").value = data.contact_detail;
 
             const selectedLocations = data.location_to_check;
@@ -141,13 +141,18 @@ function saveEditForm() {
     try {
         const locationCheckboxes = document.querySelectorAll("input[name='location_to_check']:checked");
         const selectedLocations = Array.from(locationCheckboxes).map(checkbox => checkbox.value);
-
+        const port = parseInt(document.getElementById("id_port").value, 10);
+        if (isNaN(port) || port < 0 || port > 65535) {
+            alert("Please enter a valid port number between 0 and 65535.");
+            return;
+        }
         const formData = {
             id: currentCheckId,
             name_of_check: document.getElementById("id_name_of_check").value || "",
             check_interval: document.getElementById("id_check_interval").value || "",
             check_type: document.getElementById("id_check_type").value || "",
             url: document.getElementById("id_url").value || "",
+            port: port,
             contact_detail: document.getElementById("id_contact_detail").value || "",
             location_to_check: selectedLocations
         };
@@ -170,7 +175,7 @@ function saveEditForm() {
             return response.json();
         })
         .then(() => {
-            alert("Check updated successfully!");
+            showSuccessPopupWithCountdown("Updated Successfully!");
             closePopup();
         })
         .catch(() => alert("Failed to update check. Please try again."));
@@ -203,4 +208,84 @@ function filterCountries() {
         const label = option.querySelector('label').innerText.toLowerCase();
         option.style.display = label.includes(filter) ? '' : 'none';
     });
+}
+
+let selectedCheckId = null;
+let selectedCheckName = null;
+
+function deleteCheck(checkId, checkName, event) {
+    event.stopPropagation();
+    selectedCheckId = checkId;
+    selectedCheckName = checkName;
+    showModal();
+}
+
+function showModal() {
+    // Populate the modal with the check name
+    const modalContent = document.querySelector("#deleteModal .modal-content p");
+    modalContent.innerHTML = `Are you sure you want to delete the check: <strong>${selectedCheckName}</strong>?`;
+
+    const modal = document.getElementById("deleteModal");
+    modal.style.display = "block";
+
+    // Set up the confirm button to trigger the deletion
+    const confirmButton = document.getElementById("confirmDeleteButton");
+    confirmButton.onclick = () => confirmDeleteAction();
+}
+
+function closeModal() {
+    const modal = document.getElementById("deleteModal");
+    modal.style.display = "none";
+    selectedCheckId = null;
+    selectedCheckName = null;
+}
+
+function confirmDeleteAction() {
+    if (!selectedCheckId) return;
+
+    // Perform the DELETE API request
+    fetch(`/api/check/${selectedCheckId}/`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken")
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        closeModal();
+        showSuccessPopupWithCountdown("Deleted successfully!");
+    })
+    .catch(() => {
+        alert("Failed to delete the check. Please try again.");
+        closeModal();
+    });
+}
+
+function showSuccessPopupWithCountdown(message) {
+    const successPopup = document.getElementById("successPopup");
+    const successMessage = document.getElementById("successMessage");
+    const countdownElement = document.getElementById("countdown");
+    const overlay = document.getElementById("overlay");
+
+    successMessage.innerText = message;
+
+    successPopup.style.display = "block";
+    overlay.style.display = "block";
+    
+    let countdown = 3;
+    countdownElement.innerText = countdown;
+
+    const countdownInterval = setInterval(() => {
+        countdown--;
+        countdownElement.innerText = countdown;
+        if (countdown === 0) {
+            clearInterval(countdownInterval);
+            setTimeout(() => {
+                successPopup.style.display = "none";
+                overlay.style.display = "none";
+                location.reload();
+            }, 500);
+        }
+    }, 1000);
 }
