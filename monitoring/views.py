@@ -1,7 +1,7 @@
 import json
 from django.utils import timezone 
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.shortcuts import redirect
@@ -28,13 +28,11 @@ def dashboard(request):
 
 def chart_data(request, check_id):
     try:
-        # Fetch monitoring results grouped by location
         results = MonitoringResult.objects.filter(monitoring_check__id=check_id).order_by('location_checked', 'checked_at')
         
-        # Prepare data with labels, response times, and locations
         grouped_data = {}
         for result in results:
-            location = result.location_checked  # Assuming `location` is a field in the MonitoringResult model
+            location = result.location_checked
             if location not in grouped_data:
                 grouped_data[location] = {
                     'labels': [],
@@ -55,21 +53,19 @@ class AllChartDataView(View):
         monitoring_checks = MonitoringCheck.objects.all()
         
         for check in monitoring_checks:
-            # Collect data for each check, including labels, response times, and statuses
             chart_data = {
                 'id': check.id,
                 'name_of_check': check.name_of_check,
                 'labels': [],
                 'data': [],
-                'statuses': [],  # Add statuses array
+                'statuses': [],
             }
             
-            # Populate labels, data, and statuses based on monitoring results
-            results = check.monitoringresult_set.order_by('checked_at')  # Order results by date/time
+            results = check.monitoringresult_set.order_by('checked_at')
             for result in results:
-                chart_data['labels'].append(result.checked_at.isoformat())  # Format checked_at as ISO string
+                chart_data['labels'].append(result.checked_at.isoformat())
                 chart_data['data'].append(result.response_time)
-                chart_data['statuses'].append(result.status)  # Add status to statuses array
+                chart_data['statuses'].append(result.status)
             
             data.append(chart_data)
         
@@ -159,9 +155,6 @@ def get_or_update_check_data(request, id):
         print(f"Error in get_or_update_check_data: {e}")
         return JsonResponse({'error': str(e)}, status=500)
 
-
-
-
 def edit_check(request):
     if request.method == 'POST':
         check_id = request.POST.get('check_id')
@@ -212,3 +205,25 @@ def update_check(request, check_id):
         return JsonResponse({"error": "Check not found."}, status=404)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+    
+def port_ping_status_data(request, check_id):
+    try:
+        results = MonitoringResult.objects.filter(monitoring_check__id=check_id).order_by('location_checked', 'checked_at')
+        
+        grouped_data = {}
+        for result in results:
+            location = result.location_checked
+            if location not in grouped_data:
+                grouped_data[location] = {
+                    'ping_status': [],
+                    'port_status': [],
+                    'timestamps': []
+                }
+            grouped_data[location]['ping_status'].append(result.ping_status)
+            grouped_data[location]['port_status'].append(result.port_status)
+            grouped_data[location]['timestamps'].append(result.checked_at.strftime('%Y-%m-%d %H:%M:%S'))
+        
+        return JsonResponse(grouped_data)
+    except Exception as e:
+        print(f"Error during fetching port and ping status data: {e}")
+        return JsonResponse({'error': 'Error fetching port and ping status data.'}, status=500)

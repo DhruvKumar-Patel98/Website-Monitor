@@ -31,7 +31,9 @@ class MonitoringResult(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     url = models.CharField(max_length=255) 
     status = models.CharField(max_length=50)
-    response_time = models.FloatField() 
+    response_time = models.FloatField()
+    ping_status = models.CharField(max_length=50, null=True, blank=True)
+    port_status = models.CharField(max_length=50, null=True, blank=True)
     checked_at = models.DateTimeField(auto_now_add=True)
     location_checked = models.CharField(max_length=100, null=True, blank=True) 
 

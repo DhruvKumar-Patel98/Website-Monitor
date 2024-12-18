@@ -2,8 +2,14 @@ let myChart;
 document.addEventListener('DOMContentLoaded', () => {
     const initialCheckId = document.getElementById('initial-check-id').value;
     openChart(initialCheckId);
+    fetchLocationsAndStatuses(initialCheckId);
 });
-
+function handleCardClick(checkId){
+    openChart(checkId)
+    fetchLocationsAndStatuses(checkId)
+    const subCardContainer = document.querySelector('.sub-card-container');
+    subCardContainer.classList.add('visible');
+}
 function openChart(checkId) {
     fetch(`/api/chart-data/${checkId}/`)
         .then(response => {
@@ -11,7 +17,6 @@ function openChart(checkId) {
             return response.json();
         })
         .then(data => {
-
             // Prepare the datasets dynamically based on the locations (keys in the response)
             const datasets = [];
             let labels = [];
@@ -27,44 +32,39 @@ function openChart(checkId) {
                 'rgba(201, 203, 207, 1)'  // Grey
             ];
 
-            let colorIndex = 0; // To cycle through the colors
+            let colorIndex = 0;
 
-            // Loop through each location in the response data (e.g., 'ca', 'us', etc.)
             for (const location in data) {
                 const locationData = data[location];  // Access each location's data
                 const locationLabels = locationData.labels.slice(-10);
                 const locationDataPoints = locationData.data.slice(-10);
                 const statusCodes = locationData.statuses ? locationData.statuses.slice(-10) : [];
 
-                // Set labels for the first location (assume all locations have the same labels)
                 if (isFirstLocation) {
                     labels = locationLabels;
                     isFirstLocation = false;
                 }
 
-                // Only proceed if the data format is valid
                 if (Array.isArray(locationLabels) && Array.isArray(locationDataPoints) && Array.isArray(statusCodes)) {
                     datasets.push({
-                        label: location,  // Use the location as the dataset label (e.g., 'ca', 'us')
+                        label: location,
                         data: locationDataPoints,
-                        borderColor: colors[colorIndex % colors.length],  // Assign a color from the colors array
+                        borderColor: colors[colorIndex % colors.length],
                         pointBackgroundColor: statusCodes.map(status => status === '200' ? 'green' : 'red'),
                         borderWidth: 1,
                         fill: false
                     });
 
-                    // Cycle through the colors for the next location
                     colorIndex++;
                 } else {
                     alert('Error: Invalid data format received for ' + location);
                 }
             }
 
-            // Create chart if we have at least one valid dataset
             if (datasets.length > 0) {
                 const chartData = {
-                    labels: labels,  // Same labels for all datasets
-                    datasets: datasets  // Dynamic datasets with different line colors
+                    labels: labels,
+                    datasets: datasets
                 };
                 createChart(chartData);
             } else {
@@ -221,14 +221,12 @@ function deleteCheck(checkId, checkName, event) {
 }
 
 function showModal() {
-    // Populate the modal with the check name
     const modalContent = document.querySelector("#deleteModal .modal-content p");
     modalContent.innerHTML = `Are you sure you want to delete the check: <strong>${selectedCheckName}</strong>?`;
 
     const modal = document.getElementById("deleteModal");
     modal.style.display = "block";
 
-    // Set up the confirm button to trigger the deletion
     const confirmButton = document.getElementById("confirmDeleteButton");
     confirmButton.onclick = () => confirmDeleteAction();
 }
@@ -243,7 +241,6 @@ function closeModal() {
 function confirmDeleteAction() {
     if (!selectedCheckId) return;
 
-    // Perform the DELETE API request
     fetch(`/api/check/${selectedCheckId}/`, {
         method: "DELETE",
         headers: {
@@ -288,4 +285,87 @@ function showSuccessPopupWithCountdown(message) {
             }, 500);
         }
     }, 1000);
+}
+
+function fetchLocationsAndStatuses(checkId) {
+    const apiUrl = `/api/port-ping-data/${checkId}/`; // Dynamic API URL
+
+    fetch(apiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const cardContainer = document.querySelector('.sub-card-container');
+            cardContainer.innerHTML = '';
+
+            for (const location in data) {
+                const locationData = data[location];
+
+                if (!locationData.ping_status || !locationData.port_status || locationData.ping_status.length === 0 || locationData.port_status.length === 0) {
+                    console.warn(`No data available for location: ${location}`);
+                    continue;
+                }
+
+                const latestEntryPingStatus = locationData.ping_status[locationData.ping_status.length - 1];
+                const latestEntryPortStatus = locationData.port_status[locationData.port_status.length - 1];
+
+                const card = document.createElement('div');
+                card.classList.add('sub-card');
+
+                const locationName = document.createElement('h2');
+                const formattedLocation = location.toUpperCase();
+
+                locationName.textContent = formattedLocation;
+                card.appendChild(locationName);
+
+                const latestStatus = document.createElement('div');
+                latestStatus.classList.add('latest-status');
+
+                const pingStatus = document.createElement('span');
+                pingStatus.classList.add('status-indicator-pp');
+
+                const pingText = document.createElement('span');
+                pingText.textContent = 'Ping: ';
+                pingText.style.color = 'black';
+
+                const statusText = document.createElement('span');
+                statusText.textContent = latestEntryPingStatus;
+                statusText.classList.add(
+                    latestEntryPingStatus === 'Reachable' ? 'status-up' : 'status-down'
+                );
+
+                pingStatus.appendChild(pingText);
+                pingStatus.appendChild(statusText);
+
+                const portStatus = document.createElement('span');
+                portStatus.classList.add('status-indicator-pp');
+
+                const portText = document.createElement('span');
+                portText.textContent = 'Port: ';
+                portText.style.color = 'black';
+
+                const portStatusText = document.createElement('span');
+                portStatusText.textContent = latestEntryPortStatus;
+                portStatusText.classList.add(
+                    latestEntryPortStatus === 'Open' ? 'status-up' : 'status-down'
+                );
+
+                portStatus.appendChild(portText);
+                portStatus.appendChild(portStatusText);
+
+                latestStatus.appendChild(pingStatus);
+                latestStatus.appendChild(portStatus);
+
+                card.appendChild(latestStatus);
+
+                cardContainer.appendChild(card);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching location data:', error);
+            alert('Error fetching location data. Please try again later.');
+        });
 }

@@ -1,6 +1,6 @@
 import logging
 from celery import shared_task
-from .monitor import monitor_websites_for_user
+from .monitor import monitor_for_user
 from django.contrib.auth.models import User
 
 
@@ -12,8 +12,7 @@ def scheduled_monitoring(self):
     try:
         users = User.objects.all() 
         for user in users:
-            monitor_websites_for_user(user.id)  
-        
+            monitor_for_user(user.id)      
         logger.info("Monitoring completed successfully.")
     except Exception as e:
         logger.error(f"Error during monitoring: {e}")
