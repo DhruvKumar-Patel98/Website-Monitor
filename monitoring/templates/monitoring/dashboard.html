@@ -58,9 +58,40 @@
         </div>
     {% endfor %}
 </div>
-<h2>Ping and Port:</h2>
-<div class="sub-card-container">
-    <!-- Cards will be added dynamically here -->
+<h2> Matrix</h2>
+<div class="matrix">
+    <div class="matrix-column">
+        <h2>Ping and Port:</h2>
+        <div class="sub-card-container">
+            <!-- Cards will be added dynamically here -->
+        </div>
+    </div>
+    <div class="matrix-column">
+        <h2>Website Status:</h2>
+    
+        <div class="info-box ssl-status">
+            <div class="info-icon">
+                <img src="{% static 'icons/ssl.svg' %}" alt="SSL Icon" class="icon" />
+            </div>
+            <div class="info-content">
+                <h3>SSL Status</h3>
+                <p class="status">Active</p>
+                <p>Expires: 2024-12-31</p>
+            </div>
+        </div>
+    
+        <div class="info-box domain-expiry">
+            <div class="info-icon">
+                <img src="{% static 'icons/domain.svg' %}" alt="Domain Icon" class="icon" />
+            </div>
+            <div class="info-content">
+                <h3>Domain Expiry</h3>
+                <p class="status">Expires in 30 days</p>
+                <p>Renewal Date: 2025-01-18</p>
+            </div>
+        </div>
+    </div>
+    
 </div>
 
 <!-- Chart Container -->

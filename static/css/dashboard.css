@@ -344,16 +344,131 @@
     opacity: 0;
     animation: fadeIn 0.5s ease-out forwards;
     margin-bottom: 15px;
-    background-color: #ffffff;
+    background-color: #f0f9ff;
     border: 1px solid #ddd;
     border-radius: 8px;
     padding: 20px;
     margin: 10px;
     cursor: pointer;
     flex: 0 0 auto;
-    width: 180px; 
+    width: 280px; 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s, box-shadow 0.3s;
     font-size: 14px;
     text-align: center; 
+}
+
+.matrix {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    justify-content: center;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    align-items: stretch;
+}
+
+.matrix-column {
+    flex: 1;
+    background-color: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    max-width: 45%;
+    display: flex;
+    flex-direction: column;
+    height: 100%; 
+}
+.matrix-column:first-child {
+    max-height: 385px;
+    overflow-y: auto;
+    align-items: center;
+}
+
+.info-box {
+    display: flex;
+    align-items: center;
+    background-color: #f0f9ff;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+}
+
+.info-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.info-icon {
+    flex-shrink: 0;
+    margin-right: 20px;
+}
+
+.info-icon .icon {
+    width: 30px;
+    height: 30px;
+}
+
+.info-content h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.status {
+    font-size: 1rem;
+    font-weight: bold;
+    color: green;
+}
+
+.domain-expiry .status {
+    color: red;
+}
+
+.info-content p {
+    font-size: 0.9rem;
+    margin-top: 5px;
+    color: #666;
+}
+
+.status-container {
+    display: block;
+    margin-bottom: 10px;
+}
+.sub-card-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sub-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.sub-card h3 {
+    font-size: 1.1rem;
+    margin: 0;
+    color: #333;
+}
+
+.sub-card p {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .matrix-column {
+        max-width: 100%;
+    }
+}
+
+.matrix-column:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
 }

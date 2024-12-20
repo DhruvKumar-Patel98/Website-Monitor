@@ -317,12 +317,15 @@ function fetchLocationsAndStatuses(checkId) {
 
                 const locationName = document.createElement('h2');
                 const formattedLocation = location.toUpperCase();
-
                 locationName.textContent = formattedLocation;
                 card.appendChild(locationName);
 
                 const latestStatus = document.createElement('div');
                 latestStatus.classList.add('latest-status');
+
+                // Ping Status Section
+                const pingStatusContainer = document.createElement('div');
+                pingStatusContainer.classList.add('status-container'); // Create a container for Ping
 
                 const pingStatus = document.createElement('span');
                 pingStatus.classList.add('status-indicator-pp');
@@ -339,6 +342,11 @@ function fetchLocationsAndStatuses(checkId) {
 
                 pingStatus.appendChild(pingText);
                 pingStatus.appendChild(statusText);
+                pingStatusContainer.appendChild(pingStatus); // Append to the container
+
+                // Port Status Section
+                const portStatusContainer = document.createElement('div');
+                portStatusContainer.classList.add('status-container'); // Create a container for Port
 
                 const portStatus = document.createElement('span');
                 portStatus.classList.add('status-indicator-pp');
@@ -355,9 +363,11 @@ function fetchLocationsAndStatuses(checkId) {
 
                 portStatus.appendChild(portText);
                 portStatus.appendChild(portStatusText);
+                portStatusContainer.appendChild(portStatus); // Append to the container
 
-                latestStatus.appendChild(pingStatus);
-                latestStatus.appendChild(portStatus);
+                // Append both Ping and Port Status Containers to the latestStatus
+                latestStatus.appendChild(pingStatusContainer);
+                latestStatus.appendChild(portStatusContainer);
 
                 card.appendChild(latestStatus);
 
