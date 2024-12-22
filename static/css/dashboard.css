@@ -472,3 +472,11 @@
     transform: translateY(-5px);
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
 }
+
+.ssl-active {
+    color: green;
+}
+
+.ssl-expired {
+    color: red;
+}

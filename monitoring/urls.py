@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import get_or_update_check_data, port_ping_status_data
+from .views import get_or_update_check_data, port_ping_status_data, ssl_domain_status_data
 
 urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
@@ -12,5 +12,6 @@ urlpatterns = [
     path('edit_check/', views.edit_check, name='edit_check'),
     path('api/check/<int:id>/', get_or_update_check_data, name='get_check_data'),
     path('api/port-ping-data/<int:check_id>/', port_ping_status_data, name='port_ping_data'),
+    path('api/ssl-domain-data/<int:check_id>/', ssl_domain_status_data, name='ssl_domain_data'),
 
 ]

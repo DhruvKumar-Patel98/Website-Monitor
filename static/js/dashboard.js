@@ -3,10 +3,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const initialCheckId = document.getElementById('initial-check-id').value;
     openChart(initialCheckId);
     fetchLocationsAndStatuses(initialCheckId);
+    fetchAndUpdateSSLDomainData(initialCheckId);
 });
 function handleCardClick(checkId){
     openChart(checkId)
     fetchLocationsAndStatuses(checkId)
+    fetchAndUpdateSSLDomainData(checkId);
     const subCardContainer = document.querySelector('.sub-card-container');
     subCardContainer.classList.add('visible');
 }
@@ -378,4 +380,61 @@ function fetchLocationsAndStatuses(checkId) {
             console.error('Error fetching location data:', error);
             alert('Error fetching location data. Please try again later.');
         });
+}
+
+function fetchAndUpdateSSLDomainData(checkId) {
+    const apiUrl = `/api/ssl-domain-data/${checkId}/`;
+
+    fetch(apiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch SSL/Domain data.");
+            }
+            return response.json();
+        })
+        .then(data => {
+            const sslContainer = document.querySelector(".ssl-status .info-content");
+            const domainContainer = document.querySelector(".domain-expiry .info-content");
+
+            const sslExpiryDate = data.ssl_expiry_date[data.ssl_expiry_date.length - 1];
+            const currentDate = new Date();
+            const expiryDate = new Date(sslExpiryDate);
+
+            let sslStatus = "Active";
+            if (expiryDate <= currentDate) {
+                sslStatus = "Expired";
+            }
+
+            const statusElement = sslContainer.querySelector(".status");
+            statusElement.innerText = `${sslStatus}`;            if (sslStatus === "Active") {
+                statusElement.style.color = "green";
+            } else if (sslStatus === "Expired") {
+                statusElement.style.color = "red";
+            }
+            sslContainer.querySelector("p:nth-child(3)").innerText = `Expires: ${sslExpiryDate}`;
+            const domainExpiryDate = data.domain_expiry_date[data.domain_expiry_date.length - 1];
+            const timeRemaining = getTimeUntilExpiry(domainExpiryDate);
+
+            domainContainer.querySelector(".status").innerText = `Expires in ${timeRemaining.years} years, ${timeRemaining.months} months, ${timeRemaining.days} days`;
+            domainContainer.querySelector("p:nth-child(3)").innerText = `Renewal Date: ${data.domain_expiry_date[data.domain_expiry_date.length - 1]}`;
+        })
+        .catch(error => {
+            console.error("Error updating SSL/Domain status:", error);
+            alert("Failed to update SSL/Domain status.");
+        });
+}
+
+function getTimeUntilExpiry(expiryDate) {
+    const currentDate = new Date();
+    const domainExpiryDate = new Date(expiryDate);
+    
+    const timeDifference = domainExpiryDate - currentDate;
+    
+    const daysRemaining = Math.floor(timeDifference / (1000 * 3600 * 24));
+    
+    const years = Math.floor(daysRemaining / 365);
+    const months = Math.floor((daysRemaining % 365) / 30);
+    const days = daysRemaining % 30;
+
+    return { years, months, days };
 }

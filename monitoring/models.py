@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from datetime import timedelta
 from django.utils import timezone 
 
-
 class MonitoringCheck(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name_of_check = models.CharField(max_length=255)
@@ -40,3 +39,12 @@ class MonitoringResult(models.Model):
     def __str__(self):
         return f"{self.url} - {self.status} at {self.checked_at} from {self.location_checked}"
 
+class SSLDomainStatus(models.Model):
+    monitoring_check = models.ForeignKey('MonitoringCheck', on_delete=models.CASCADE)
+    ssl_status = models.CharField(max_length=50)  # e.g., Active or Expired
+    ssl_expiry_date = models.DateTimeField(null=True, blank=True)
+    domain_expiry_date = models.DateTimeField(null=True, blank=True)
+    last_checked = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.monitoring_check.name_of_check} - Status"

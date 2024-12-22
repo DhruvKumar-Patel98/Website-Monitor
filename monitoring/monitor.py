@@ -1,12 +1,16 @@
 import socket
 from urllib.parse import urlparse
 from django.utils import timezone
-from monitoring.models import MonitoringCheck, MonitoringResult
+from monitoring.models import MonitoringCheck, MonitoringResult, SSLDomainStatus
 import requests
 from django.contrib.auth.models import User
 import subprocess
 import requests
 import time
+import ssl
+import socket
+import whois
+from datetime import datetime
 
 def extract_host_from_url(url):
     parsed_url = urlparse(url)
@@ -118,3 +122,47 @@ def connect_vpn(ovpn_file_path):
 def disconnect_vpn(vpn_process):
     vpn_process.terminate()
     vpn_process.wait()
+
+
+def get_ssl_expiry_date(hostname):
+    context = ssl.create_default_context()
+    with socket.create_connection((hostname, 443)) as sock:
+        with context.wrap_socket(sock, server_hostname=hostname) as ssock:
+            cert = ssock.getpeercert()
+            expiry_date = datetime.strptime(cert['notAfter'], "%b %d %H:%M:%S %Y %Z")
+            return expiry_date
+
+def get_domain_expiry_date(domain):
+    try:
+        domain_info = whois.whois(domain)
+        expiry_date = domain_info.expiration_date
+        # Handle cases where expiry_date might be a list
+        if isinstance(expiry_date, list):
+            expiry_date = expiry_date[0]
+        return expiry_date
+    except Exception as e:
+        print(f"Error fetching domain expiry for {domain}: {e}")
+        return None
+
+def check_and_store_ssl_domain_status(user_id):
+    user = User.objects.get(id=user_id)
+    checks = MonitoringCheck.objects.filter(user=user)
+    for check in checks:
+        try:
+            hostname = check.url.split("//")[-1].split("/")[0]  # Extract hostname
+            ssl_expiry = get_ssl_expiry_date(hostname)
+            domain_expiry = get_domain_expiry_date(hostname)
+
+            status_entry, created = SSLDomainStatus.objects.get_or_create(monitoring_check=check)
+
+            status_entry.ssl_status = "Active" if ssl_expiry > datetime.now() else "Expired"
+            status_entry.ssl_expiry_date = ssl_expiry
+            status_entry.domain_expiry_date = domain_expiry
+            status_entry.last_checked = datetime.now()
+
+            status_entry.save()
+
+            print(f"Updated SSL and domain status for {check.name_of_check}.")
+
+        except Exception as e:
+            print(f"Error checking SSL/Domain for {check.name_of_check}: {e}")

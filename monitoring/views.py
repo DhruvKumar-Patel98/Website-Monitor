@@ -7,7 +7,7 @@ from django.contrib.auth import logout
 from django.shortcuts import redirect
 from django.views import View
 from .form import MonitoringCheckForm
-from .models import MonitoringCheck, MonitoringResult
+from .models import MonitoringCheck, MonitoringResult, SSLDomainStatus
 from .tasks import scheduled_monitoring
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -227,3 +227,25 @@ def port_ping_status_data(request, check_id):
     except Exception as e:
         print(f"Error during fetching port and ping status data: {e}")
         return JsonResponse({'error': 'Error fetching port and ping status data.'}, status=500)
+
+def ssl_domain_status_data(request, check_id):
+    try:
+        results = SSLDomainStatus.objects.filter(monitoring_check__id=check_id).order_by('last_checked')
+
+        grouped_data = {
+            'ssl_status': [],
+            'ssl_expiry_date': [],
+            'domain_expiry_date': [],
+            'timestamps': []
+        }
+
+        for result in results:
+            grouped_data['ssl_status'].append(result.ssl_status)
+            grouped_data['ssl_expiry_date'].append(result.ssl_expiry_date.strftime('%Y-%m-%d'))
+            grouped_data['domain_expiry_date'].append(result.domain_expiry_date.strftime('%Y-%m-%d') if result.domain_expiry_date else "N/A")
+            grouped_data['timestamps'].append(result.last_checked.strftime('%Y-%m-%d %H:%M:%S'))
+
+        return JsonResponse(grouped_data)
+    except Exception as e:
+        print(f"Error during fetching SSL/Domain status data: {e}")
+        return JsonResponse({'error': 'Error fetching SSL/Domain status data.'}, status=500)
