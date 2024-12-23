@@ -144,6 +144,6 @@ CELERY_BEAT_SCHEDULE = {
     },
     'ssl-domain-check-every-7-days': {
         'task': 'monitoring.tasks.scheduled_ssl_domain_check',
-        'schedule': crontab(day_of_week='*/7'), 
+        'schedule': crontab(minute=0, hour=0, day_of_week=0, month_of_year='*/1'),
     },
 }

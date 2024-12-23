@@ -1,3 +1,4 @@
+import os
 import socket
 from urllib.parse import urlparse
 from django.utils import timezone
@@ -11,6 +12,44 @@ import ssl
 import socket
 import whois
 from datetime import datetime
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
+def send_email_notification(to_email, subject, content):
+    try:
+        message = Mail(
+            from_email=os.environ.get("EMAIL"),
+            to_emails=to_email,
+            subject=subject,
+            html_content=content
+        )
+        sg = SendGridAPIClient(os.environ.get("SENDGRID_API_KEY"))
+        response = sg.send(message)
+        print(f"Email sent to {to_email}. Status Code: {response.status_code}")
+    except Exception as e:
+        print(f"Error sending email: {e}")
+
+def generate_email_body(url, http_status=None, ping_status=None, port_status=None):
+    messages = []
+
+    if http_status in [404, 'Error']:
+        messages.append(f"<li>HTTP Status: {http_status} for URL: {url}</li>")
+    if ping_status == 'Unreachable':
+        messages.append(f"<li>Ping Status: {ping_status} for URL: {url}</li>")
+    if port_status == 'Closed':
+        messages.append(f"<li>Port Status: {port_status} for URL: {url}</li>")
+
+    if messages:
+        return f"""
+        <p>Hello,</p>
+        <p>We detected the following issues with your website <strong>{url}</strong>:</p>
+        <ul>
+            {''.join(messages)}
+        </ul>
+        <p>Please take immediate action to resolve these issues.</p>
+        <p>Thank you,<br>Your Website Monitoring Team</p>
+        """
+    return None
 
 def extract_host_from_url(url):
     parsed_url = urlparse(url)
@@ -84,6 +123,18 @@ def monitor_for_user(user_id):
                                     port_status=port_status,
                                     checked_at=timezone.now(),
                                 )
+
+                                # Check failure conditions and send email
+                                if http_status in [404, 'Error'] or ping_status == 'Unreachable' or port_status == 'Closed':
+                                    subject = f"ALERT: Issues detected with {check.name_of_check}"
+                                    content = generate_email_body(
+                                        url=check.url,
+                                        http_status=http_status,
+                                        ping_status=ping_status,
+                                        port_status=port_status
+                                    )
+                                    if content:
+                                        send_email_notification(check.contact_detail, subject, content)
                             finally:
                                 disconnect_vpn(vpn_process)
                         else:
@@ -96,7 +147,6 @@ def monitor_for_user(user_id):
                 print(f"Error processing check for {check.url}: {e}")
     except Exception as e:
         print(f"Error in monitoring for user {user_id}: {e}")
-
 
 VPNBOOK_USERNAME = "vpnbook"
 VPNBOOK_PASSWORD = "c28hes5"
