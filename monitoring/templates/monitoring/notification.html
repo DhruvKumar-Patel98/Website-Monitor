@@ -1,8 +1,55 @@
 {% extends 'monitoring/base.html' %}
-
+{% load static %}
 {% block title %}Notification{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/notification.css' %}">
     <h1>Notification</h1>
-    <p>Check the status of your website pages here.</p>
+    <p>You can update the email address in your URL to receive notifications.</p>
+    <input type="hidden" id="initial-check-id" value="{{ monitoring_checks.first.id }}">
+
+    <div class="card-container">
+        {% for check in monitoring_checks %}
+            <div class="card">
+                <h3 style="display: flex; align-items: center; gap: 15px;">
+                    {{ check.name_of_check }}
+                    <a href="javascript:void(0);" title="Edit Check" onclick="openEditForm('{{ check.id }}', event)" class="add-button" style="display: inline-flex; align-items: center;">
+                        <img src="{% static 'icons/edit.svg' %}" alt="Edit" style="width: 16px; height: 16px; margin-bottom: 5px; cursor: pointer;">
+                    </a>              
+                </h3>   
+                <p class="contact-detail">
+                    {% if check.contact_detail %}
+                        Contact Email: {{ check.contact_detail }}
+                    {% else %}
+                        Contact Email: Not Set
+                    {% endif %}
+                </p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div id="editFormPopup" class="popup-form-container" style="display: none;">
+        <div class="popup-form-content">
+            <span class="close-btn" onclick="closePopup()">&times;</span>
+            <h2>Edit Check</h2>
+            <form id="editForm" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="check_id" id="check_id">
+                
+                <label for="id_name_of_check">Name of Check:</label>
+                <input type="text" name="name_of_check" id="id_name_of_check" required>
+    
+                <label for="id_url">URL:</label>
+                <input type="url" name="url" id="id_url" required>
+    
+                <label for="id_contact_detail">Contact Email:</label>
+                <input type="email" name="contact_detail" id="id_contact_detail" required>
+    
+                <button type="button" onclick="saveEditForm()">Save Changes</button>
+            </form>
+        </div>
+    </div>
+    
+    <script src="{% static 'js/notification.js' %}"></script>
+
 {% endblock %}

@@ -74,7 +74,9 @@ class AllChartDataView(View):
 
 @login_required(login_url='/login')
 def notification(request):
-    return render(request, 'monitoring/notification.html')
+    monitoring_checks = MonitoringCheck.objects.filter(user=request.user)  # Fetch monitoring checks
+    form = MonitoringCheckForm()
+    return render(request, 'monitoring/notification.html', {'monitoring_checks': monitoring_checks, 'form': form})
 
 @login_required(login_url='/login')
 def page_status(request):
