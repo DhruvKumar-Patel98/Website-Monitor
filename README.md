@@ -21,6 +21,6 @@ Website Monitor is a Django-based application that tracks website uptime and dow
 
 - Python 3.8+
 - Django 4.x
-- PostgreSQL
+- SQLite
 - Redis
 - Celery
