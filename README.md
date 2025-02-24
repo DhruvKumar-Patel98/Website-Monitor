@@ -1,6 +1,6 @@
 # Website Monitor
 
-Website Monitor is a Django-based application that tracks website uptime and downtime, logs response times, and provides real-time notifications via SMS and email. Built with Celery and Redis for handling background tasks and PostgreSQL for data storage, this project enables efficient and scalable website performance monitoring.
+Website Monitor is a Django-based application that tracks website uptime and downtime, logs response times, and provides real-time notifications via SMS and email. Built with Celery and Redis for handling background tasks and SQLite for data storage, this project enables efficient and scalable website performance monitoring.
 
 ## Features
 
