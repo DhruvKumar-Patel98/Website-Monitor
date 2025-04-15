@@ -11,7 +11,7 @@ Website Monitor is a Django-based application that tracks website uptime and dow
   
 ## Technology Stack
 
-- **Backend**: Django, Celery, Redis, PostgreSQL
+- **Backend**: Django, Celery, Redis, SQLite
 - **Frontend**: HTML, CSS, JavaScript
 - **Dependencies**: Django REST Framework, Twilio API for SMS notifications, SMTP for email
 
